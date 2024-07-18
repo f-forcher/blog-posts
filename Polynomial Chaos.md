@@ -1,4 +1,4 @@
-# Polynomial Chaos in Hamiltonian mechanics 
+# Tutorial on Polynomial Chaos in Hamiltonian mechanics 
 # Part 1: Intoduction to PCE
 In this series of articles, we will introduce the tecnique known as *Polynomial chaos* (PC) or *Polynomial chaos expansion* (PCE), 
 and explore its application to numerical solutions of stochastic differential equations, with a focus on Hamiltonian mechanics.
@@ -108,7 +108,7 @@ k0 = 2.5 # Spring specific strength
 initial_position = 1. # Starting position x_0
 initial_velocity = 0. # Starting velocity v_0
 
-y0 = (initial_position, initial_velocity) # Initial values vector
+y0 = (initial_position, initial_velocity) # Initial coordinates values
 
 # Generate times to sample the output solution at
 time_steps = 10000
@@ -116,6 +116,7 @@ tcoordinates = np.linspace(t_span[0], t_span[1], time_steps)
 ```
 
 Now, we need to define the function representing the derivative of $x$ and $v$, as function of $t,x,v$.
+Note that in `scipy` the coordinates of a point of the state space are conventionally represented as `y`. In our case, $y = [x, v]$
 
 ```python
 def derivative_field(t, y, k0):
@@ -124,7 +125,7 @@ def derivative_field(t, y, k0):
 ```
 
 This is effectively a vector field defined on our bidimensional space[^4],
-which will be called the *state space* from now on (see the notebook for the plotting code). 
+which will be called the *state space* from now on (see the notebook for the plotting code).
 
 ![ODE vector field](img/blog_h1_vecfield.svg)
 
@@ -133,8 +134,8 @@ fundamentally, this is due to the fact that the vectors do not belong in the sta
 of their respective *tangent space*: a collection of vector spaces, one for each point of the state space. 
 The tangent space is where the derivative lives.
 
-###  Computing the solution with sympy
-Now we have all the ingredients needed to compute a numerical solution using numpy. We will use the 
+###  Computing the solution with `scipy`
+Now we have all the ingredients needed to compute a numerical solution using `scipy`. We will use the 
 `solve_ivp` function (where `ivp` stands for "initial value problem").
 
 ```python
@@ -143,6 +144,14 @@ sol = sp.integrate.solve_ivp(derivative_field, t_span, y0, args=(k0,),
                                     max_step=1/100, t_eval=tcoordinates, 
                                     dense_output=True, events=None, vectorized=False)
 ```
+
+The positional arguments are the most important thing to understand: we pass our function
+`derivative_field` with signature `derivative_field(t, y, *args)`, which returns the 
+derivative at $t,y$. The solution is defined on the interval $t_span$, and the initial conditions
+are in `y0`. Additional parameters for `derivative_field` are passed in `args`, in our case the
+spring strength $k0$.
+
+
 If everything goes well, `sol` should print something like this:
 ```
   message: The solver successfully reached the end of the integration interval.
@@ -158,3 +167,14 @@ If everything goes well, `sol` should print something like this:
      njev: 0
       nlu: 0
 ```
+the field `sol.y` will contain our solution, a trajectory through the state space evaluated at each time `sol.t`.
+
+### Visualizing the solution
+We can plot our solution in various ways. First, lets look at the components separatedly: we can observe the 
+so-called harmonic motion in action, oscillating around the equilibrium point at the origin $x=0$.
+
+![Harmonic solution position and velocity](img/H1_pos_v.svg)
+
+Another possibility: we can ignore time and the trajectory $y=[x,v]$ directly on the state space:
+
+![Harmonic solution position and velocity](img/blog_h1_vecfield_sol.svg)
