@@ -1,8 +1,8 @@
 # Polynomial Chaos in Hamiltonian mechanics 
 # Part 1: Intoduction to PCE
-In this series of articles, I will introduce the tecnique known as *Polynomial chaos* (PC) or *Polynomial chaos expansion* (PCE), 
+In this series of articles, we will introduce the tecnique known as *Polynomial chaos* (PC) or *Polynomial chaos expansion* (PCE), 
 and explore its application to numerical solutions of stochastic differential equations, with a focus on Hamiltonian mechanics.
-Now we will cover the basic background 
+In this first part, we will go over a summary of the necessary background information.
 
 > [!NOTE]
 > A rigorous approach to this topic requires somewhat advanced knowledge of math, physics and statistics,
@@ -13,7 +13,7 @@ Now we will cover the basic background
 > to explain concepts and formulas if possible.
 
 # Examples and definitions
-In this section, we recall some basic facts of (stochastic) ODEs, vector spaces, 
+In this section, we recall some basic facts of differential equations, vector spaces, 
 polynomials, and the like. Feel free to skip and consult as needed if you are already familiar with all of these terms.
 
 ## The unidimensional harmonic oscillator
@@ -83,7 +83,7 @@ In other words, the solution of a multidimensional ordinary DE is just a collect
 Most numerical ODE solving software assumes as input in its interface a first-order ODE already reduced in this manner.
 
 #### Exact solution
-`(TODO, not focus of post)`
+`(TODO, not important for article)`
 
 ### Numerical solution
 We will now show how to use Python and its associated numerical libraries to get an approximate solution for this ODE.
@@ -121,4 +121,40 @@ Now, we need to define the function representing the derivative of $x$ and $v$, 
 def derivative_field(t, y, k0):
     return np.array([y[1], 
                      -k0*y[0]])
+```
+
+This is effectively a vector field defined on our bidimensional space[^4],
+which will be called the *state space* from now on (see the notebook for the plotting code). 
+
+![ODE vector field](img/blog_h1_vecfield.svg)
+
+[^4]: Note that the absolute size of the arrows in the plot does not matter, just their relative size and direction: 
+fundamentally, this is due to the fact that the vectors do not belong in the state space itself, but are rather elements
+of their respective *tangent space*: a collection of vector spaces, one for each point of the state space. 
+The tangent space is where the derivative lives.
+
+###  Computing the solution with sympy
+Now we have all the ingredients needed to compute a numerical solution using numpy. We will use the 
+`solve_ivp` function (where `ivp` stands for "initial value problem").
+
+```python
+sol = sp.integrate.solve_ivp(derivative_field, t_span, y0, args=(k0,), 
+                                    method='DOP853', rtol=1e-13, atol=1e-13, 
+                                    max_step=1/100, t_eval=tcoordinates, 
+                                    dense_output=True, events=None, vectorized=False)
+```
+If everything goes well, `sol` should print something like this:
+```
+  message: The solver successfully reached the end of the integration interval.
+  success: True
+   status: 0
+        t: [ 0.000e+00  1.500e-03 ...  1.500e+01  1.500e+01]
+        y: [[ 1.000e+00  1.000e+00 ...  1.522e-01  1.545e-01]
+            [ 0.000e+00 -3.750e-03 ...  1.563e+00  1.562e+00]]
+      sol: <scipy.integrate._ivp.common.OdeSolution object at 0x72a24eb806e0>
+ t_events: None
+ y_events: None
+     nfev: 22517
+     njev: 0
+      nlu: 0
 ```
