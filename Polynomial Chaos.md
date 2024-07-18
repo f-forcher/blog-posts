@@ -1,5 +1,5 @@
 # Polynomial Chaos in Hamiltonian mechanics 
-## Part 1: Intoduction to PCE
+# Part 1: Intoduction to PCE
 In this series of articles, I will introduce the tecnique known as *Polynomial chaos* (PC) or *Polynomial chaos expansion* (PCE), 
 and explore its application to numerical solutions of stochastic differential equations, with a focus on Hamiltonian mechanics.
 Now we will cover the basic background 
@@ -85,8 +85,8 @@ Most numerical ODE solving software assumes as input in its interface a first-or
 #### Exact solution
 `(TODO, not focus of post)`
 
-#### Numerical solution
-We will now use Python and its associated numerical libraries to solve this ODE, as a good warmup example.
+### Numerical solution
+We will now show how to use Python and its associated numerical libraries to get an approximate solution for this ODE.
 I recommend using `jupyterlab` and paste along the various code snippets (TODO: add complete notebook in repo+link).
 
 First, let's import the required libraries:
@@ -97,7 +97,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 ```
 
-Now, let's define the parameters needed for our numerical solution
+Let's define the parameters needed for our numerical solution:
 
 ```python
 t0 = 0.  # Initial time
@@ -113,4 +113,12 @@ y0 = (initial_position, initial_velocity) # Initial values vector
 # Generate times to sample the output solution at
 time_steps = 10000
 tcoordinates = np.linspace(t_span[0], t_span[1], time_steps) 
+```
+
+Now, we need to define the function representing the derivative of $x$ and $v$, as function of $t,x,v$.
+
+```python
+def derivative_field(t, y, k0):
+    return np.array([y[1], 
+                     -k0*y[0]])
 ```
