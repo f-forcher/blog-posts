@@ -175,6 +175,7 @@ so-called harmonic motion in action, oscillating around the equilibrium point at
 
 ![Harmonic solution position and velocity](img/H1_pos_v.svg)
 
-Another possibility: we can ignore time and the trajectory $y=[x,v]$ directly on the state space:
+Another possibility: we can ignore time and plot the solution $y=[x,v]$ directly on the state space. Here we can observe
+the trajectory (in blue) determined by the the initial condition (the red dot, plotted with its derivative vector).
 
 ![Harmonic solution position and velocity](img/blog_h1_vecfield_sol.svg)
