@@ -350,7 +350,7 @@ and the following figure illustrates said process:
 ### The Gram–Schmidt algorithm in `sympy`
 `TODO`
 
-# Polynomial Chaos
+# Part 2: Polynomial Chaos
 `TODO`
 
 ## Definition of PCE, advantages
@@ -362,7 +362,7 @@ and the following figure illustrates said process:
 ## Examples in `sympy`
 `TODO`
 
-# Fundamentals of Hamiltonian Mechanics
+# Part 3: Fundamentals of Hamiltonian Mechanics
 `TODO`
 
 ## Hamiltonian equations
@@ -377,13 +377,16 @@ and the following figure illustrates said process:
 ## Stochastic hamiltonians, Monte Carlo approach
 `TODO`
 
-# Putting it all together:
+# Part 4: Putting it all together
 `TODO`
 
 ## Stochastic Hamiltonian maps
 `TODO`
 
 ## Automatic derivation of Hamilton equations in `sympy`
+`TODO`
+
+## Compiling `sympy` to `numpy` with `lambdify`
 `TODO`
 
 ### Duffing hamiltonian example
