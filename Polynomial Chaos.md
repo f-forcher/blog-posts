@@ -1,7 +1,6 @@
 # Tutorial on Polynomial Chaos in Hamiltonian mechanics 
 # Introduction
-In this series of blog posts, I will explain the topic of my MSc thesis: the tecnique known as intrusive *Polynomial chaos* (PC), applied in Hamiltonian mechanics. 
-We will explore its application to numerical solutions of stochastic differential equations, with a focus on uncertainty qunatification in modelizations of Hamiltonian systems.
+In this series of blog posts, I will explain the topic of my MSc thesis: the technique known as intrusive Polynomial chaos (PC), applied in Hamiltonian mechanics. We will explore its application to numerical solutions of stochastic differential equations, with a focus on uncertainty quantification in modelizations of Hamiltonian systems.
 
 ### Contents
 * Part 1: we will go over a quick summary of the necessary background knowledge, such as ODEs, polynomials as vector spaces, 
@@ -184,7 +183,7 @@ The field `sol.y` will contain our solution, a trajectory through the state spac
 `TODO`
 
 ## Visualizing the solution
-Back to our harmonic oscillator: we can plot our solution to the equation in various ways. First, lets look at the components separatedly: we can observe the 
+Back to our harmonic oscillator: we can plot our solution to the equation in various ways. First, lets look at the components separately: we can observe the 
 so-called harmonic motion in action, oscillating around the equilibrium point at the origin $x=0$.
 
 ![Harmonic solution position and velocity](img/H1_pos_v.svg)
@@ -261,9 +260,9 @@ For example, in one variable $x$:
 \mathbf{e_0} = 1,\ \mathbf{e_1} = x,\ \mathbf{e_2} = x^2,\ \cdots \ \mathbf{e_n} = x^n   
 ```
 
-It is very easy to show that the operations of sum and multiplication by a constant applied to monomials can produce every polynomial up to the highest monomial degre.
+It is very easy to show that the operations of sum and multiplication by a constant applied to monomials can produce every polynomial up to the highest monomial degree.
 
-#### Ortogonal bases
+#### Orthogonal bases
 For the next step, we need to consider some additional structure on our vector space: an [inner product](https://en.wikipedia.org/wiki/Inner_product_space).
 The inner product $\langle u,v \rangle$: `[Vec, Vec] -> Num` is an operation that takes in two vectors and produces a scalar, satisfying some properties of symmetry, linearity and positive-definiteness
 (see wiki for more info). Moreover, an inner product induces a norm operation `Vec -> Num` (the length of a vector) on the space:
@@ -296,7 +295,7 @@ In other words,
 
 #### The Gram–Schmidt algorithm
 It is easy to see that for most weights $w(x)$, the natural basis of monomials $e_i = x^i$ is not orthogonal in the space of polynomials.
-For example, definining $w(x)$ as uniform between $0$ and $1$ : 
+For example, defining $w(x)$ as uniform between $0$ and $1$ : 
 
 ```math
 w_u(x) \ := \Bigg\{ \begin{aligned}
@@ -313,7 +312,7 @@ we can easily compute the inner product of the first two elements $[e_0, e_1] = 
 How can we go from a non-orthonormal basis to an orthonormal one? There is an algorithm for that, 
 the [Gram–Schmidt process](https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process).
 
-In plain words, the core idea of the algorithm is to iterate over the non-ortogonal basis vectors 
+In plain words, the core idea of the algorithm is to iterate over the non-orthogonal basis vectors 
 and subtract from them their *projection* on all the previously processed basis vectors.
 Central to this is the concept of [projection](https://en.wikipedia.org/wiki/Vector_projection) of a vector $\mathbf{v}$ onto another $\mathbf{u}$:
 
