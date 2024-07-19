@@ -1,18 +1,18 @@
 # Tutorial on Polynomial Chaos in Hamiltonian mechanics 
-# Part 1: Intoduction to PCE
-In this series of articles, we will introduce the tecnique known as *Polynomial chaos* (PC) or *Polynomial chaos expansion* (PCE), 
-and explore its application to numerical solutions of stochastic differential equations, with a focus on Hamiltonian mechanics.
-In this first part, we will go over a summary of the necessary background information.
+# Part 1: Intoduction
+In this series of blog posts, I will give a rundown of my MSc thesis work on the tecnique known as *Polynomial chaos* (PC) or *Polynomial chaos expansion* (PCE),
+as applied to Hamiltonian Mechanics. We will explore its application to numerical solutions of stochastic differential equations with a focus on uncertainty qunatification in
+simulations of Hamiltonian systems. In this first part, we will go over a summary of the necessary background information.
 
 > [!NOTE]
-> A rigorous approach to this topic requires somewhat advanced knowledge of math, physics and statistics,
-> but I would like this tutorial, focused on practical applications of numerical computing, to be useful to a wide audience of students,
-> data wranglers and tinkerers from different backgrounds.
+> A fully rigorous approach to the topic requires advanced knowledge of math, physics and statistics.
+> However, I aim for this tutorial to be a sort of self-contained explanation useful to a wide audience of
+> students and tinkerers from varied backgrounds, especially more practical numerical computing/data science.
 > 
-> My goal will be to assume only basic knowledge of analysis and linear algebra, and to use images and code
-> to explain concepts and formulas if possible.
+> My goal is then to assume only basic knowledge of analysis and linear algebra and to try to provide the basic background facts.
+> I will use images and code to explain concepts and formulas, if possible.
 
-# Examples and definitions
+# Introductory examples and definitions
 In this section, we recall some basic facts of differential equations, vector spaces, 
 polynomials, and the like. Feel free to skip and consult as needed if you are already familiar with all of these terms.
 
