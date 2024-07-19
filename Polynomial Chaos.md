@@ -1,6 +1,7 @@
 # Tutorial on Polynomial Chaos in Hamiltonian mechanics 
 # Introduction
-In this series of blog posts, I will explore the topic of my MSc thesis: the technique known as intrusive Polynomial chaos (PC) applied to Hamiltonian mechanics. We will explore its application to numerical solutions of stochastic differential equations, with a focus on uncertainty quantification in modelizations of Hamiltonian systems.
+In this series of blog posts, we will explore the topic of my MSc thesis: the technique known as intrusive Polynomial chaos (PC) applied to Hamiltonian mechanics. 
+We will investigate its use in numerical solutions of stochastic differential equations, focusing on uncertainty quantification in modelizations of Hamiltonian systems.
 
 ### Contents
 * Part 1: we will go over a quick summary of the necessary background knowledge, such as ODEs, polynomials as vector spaces, 
