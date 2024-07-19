@@ -147,7 +147,7 @@ sol = sp.integrate.solve_ivp(derivative_field, t_span, y0, args=(k0,),
 
 The positional arguments are the most important thing to understand: we pass our function
 `derivative_field` with signature `derivative_field(t, y, *args)`, which returns the 
-derivative at $t,y$. The solution is defined on the interval $t_span$, and the initial conditions
+derivative at $t,y$. The solution is defined on the interval `t_span`, and the initial conditions
 are in `y0`. Additional parameters for `derivative_field` are passed in `args`, in our case the
 spring strength $k0$.
 
@@ -252,11 +252,33 @@ It is almost tautological to see how sum and multiplication by a constant can pr
 #### Ortogonal bases
 For the next step, we need to consider some additional structure on our vector space: an [inner product](https://en.wikipedia.org/wiki/Inner_product_space).
 The inner product $\langle u,v \rangle$ is an operation that takes in two vectors and produces a scalar, satisfying some properties of symmetry, linearity and positive-definiteness
-(see wiki for more info). Moreover, an inner product defines a norm operation (the notion of length of a vector)
+(see wiki for more info). Moreover, an inner product defines a norm operation (the notion of length of a vector):
 
 ```math
-|| v ||^2 = \langle v, v \rangle
+|| v ||^2 = \langle v, v \rangle \textrm{ or equivalently, } || v || = \sqrt{\langle v, v \rangle}
+```
+
+For the purposes of Polynomial Chaos, the inner product $\langle P_i, P_j\rangle$ on the vector space of polynomials is defined as the definite integral 
+of the product of the polynomials $P_i(x)P_j(x)$ over the domain 
+$D$ of the variables, where each value of $x$ is weighted by a specified *weight* or *density function* $w(x)$
+
+```math
+\langle P_i, P_j\rangle _w\ := \int_D P_i(x)P_j(x)\,w(x)dx\ .
+```
+
+The relevance of the density function will become clearer later once we approach the stochastic side of things, for now let's take this definition
+as axiomatic, and look into the notion of *orthogonality* and *orthonormality*.
+
+An *orthogonal basis* is a basis where the inner product of two different basis vectors is zero. An *orthonormal basis*
+has the additional property that the norm $|| e_i ||$ of each basis vector, or equivalently $\langle e_i, e_i\rangle$, is equal to $1$.
+In other words,
+
+```math
+\langle e_i, e_j\rangle \ := \Bigg\{ \begin{aligned}
+  1\ &|\ i=j \\
+  0\ &|\ i \neq j
+\end{aligned}
 ```
 
 
-![GS orthonormalization explanation](img/ortho_poly_GS_white.png)
+![GS orthonormalization explanation](img/ortho_poly_GS_white_fix.png)
