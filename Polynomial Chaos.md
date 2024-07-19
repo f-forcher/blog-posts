@@ -1,23 +1,23 @@
 # Tutorial on Polynomial Chaos in Hamiltonian mechanics 
 # Intoduction
-In this series of blog posts, I will give a rundown of my MSc thesis work on the tecnique known as *Polynomial chaos* (PC) or *Polynomial chaos expansion* (PCE),
-as applied to Hamiltonian Mechanics. We will explore its application to numerical solutions of stochastic differential equations with a focus on uncertainty qunatification in
-simulations of Hamiltonian systems.
+In this series of blog posts, I will explain the topic of my MSc thesis: the tecnique known as intrusive *Polynomial chaos* (PC), applied in Hamiltonian mechanics. 
+We will explore its application to numerical solutions of stochastic differential equations, with a focus on uncertainty qunatification in modelizations of Hamiltonian systems.
 
 ### Contents
 * Part 1: we will go over a quick summary of the necessary background knowledge, such as ODEs, polynomials as vector spaces, 
 `scipy` and `sympy`.
-* Part 2: definitions and concepts of Polynomial Chaos Expansion will be explored, such as intrusive vs surrogate model.
-* Part 3: we will look at the basic properties of Hamiltonian equations, and derive more advanced concepts like Hamiltonian maps.
-* Part 4: assembly everything together, creating a fully automated system to perform fast Uncertainty Quantification in the evolution of Hamiltonian systems using intrusive PCE, generating
+* Part 2: the definition and concepts of Polynomial Chaos Expansion will be explored, such as intrusive vs surrogate models.
+* Part 3: we will look at the basic properties of Hamiltonian equations, and explain advanced concepts like Hamiltonian maps.
+* Part 4: all the ingredients come together, creating a fully automated system to
+  perform fast Uncertainty Quantification on the evolution of Hamiltonian systems using intrusive PCE, generating
   symbolic expressions which are then compiled to numerical functions suited for traditional ODE solver software.
 
 > [!NOTE]
 > A fully rigorous approach to the topic requires advanced knowledge of math, physics and statistics.
-> However, I aim for this tutorial to be a sort of self-contained explanation useful to a wide audience of
+> However, this tutorial aims to be a sort of self-contained explanation, useful to a wide audience of
 > students and tinkerers from varied backgrounds.
 > 
-> My goal is then to assume only basic knowledge of analysis and linear algebra and to try to provide the basic background facts.
+> My goal is then to assume only basic knowledge of calculus and linear algebra and to try to provide the basic background facts.
 > I will use images and code to explain concepts and formulas, if possible.
 
 # Part 1: Introductory examples and definitions
@@ -38,7 +38,7 @@ x''(t)=-kx(t)
 
 Here, $x(t)$ is a function that represents the position at time $t$ of a point mass that is constrained along a unidimensional axis $\hat x$. 
 The mass is tied with an idealized spring pulling towards the origin of the axis (hence the negative sign, for a positive $k$). 
-The mass of the particle has been absorbed inside the constant $k$, that represents the spring's "specific strength".
+The mass of the particle has been absorbed inside the constant $k$, which represents the spring's "specific strength".
 The notation $x''(t)$ represents the second derivative of the position with respect to time, also known as acceleration:
 ```math
 x''(t)=\frac{d^2}{dt^2}(x)(t)
@@ -51,14 +51,14 @@ This means that is is a *second-order* ODE, as it involves the second derivative
 > from the composition of the derivative with itself, ie $\frac{d^2}{dt^2}(x)(t) = \frac{d}{dt}\big(\frac{d}{dt}(x)\big)(t)$.
 
 > [!TIP]
-> More in general, during our exploration it will sometimes be useful to consider the "type" of math expressions, analogous to types in computer science. I will use a pseudo-type-annotation
-> syntax that should be fairly intuitive.
+> More in general, during our exploration it will sometimes be useful to consider the "type" of math expressions, analogous to
+> types in computer science. I will use a pseudo type annotation syntax that should be fairly intuitive.
 >
 > In this simple example, both $x(t)$ and $x''(t)$ are `Real -> Real` scalar-valued functions of (scalar) time, while the "derivative operator"
 > $\frac{d^2}{dt^2}$ would have type `(Real -> Real) -> (Real -> Real)`[^2].
 
 [^2]: A more sophisticated model could represent
-the incompatibility of the units of measurements of the different types of `Real` scalar numbers above by using a kind of
+the incompatibility of the units of measurements of the different types of `Real` scalar numbers above by using a 
 newtype pattern: `x(t): Time[Real] -> Position[Real]`, `x''(t): Time[Real] -> Acceleration[Real]`,
  `d^2/dt^2(f): (Time[Real] -> Position[Real]) -> (Time[Real] -> Acceleration[Real])`
 
@@ -74,12 +74,13 @@ x(0)&=x_0\\
 ```
 
 #### Reduction to first order
-We may already infer a very important trick by looking at the conditions above: we can exchange derivative orders for dimensions, in an ODE. In other words, by employing additional variables, 
+We may infer a very important trick by looking at the conditions above: in an ODE, we can exchange derivative orders for dimensions. In other words, by employing additional variables, 
 we need to use only first-order derivatives to express the equation. In our example ODE, the unidimensional second order equation $x''(t)=-kx(t)$ becomes a bidimensional first-order ODE[^3] by using an additional variable $v(t)$,
 the velocity of the particle:
 
 [^3]: Note that it is still an ODE and not a Partial DE, since all derivatives are still taken with respect to the unique independent variable $t$. 
-In other words, the solution of a multidimensional ordinary DE is just a collection or vector of functions depending on $t$, tracing a unidimensional trajectory in a higher-dimensional space.
+In other words, the solution of a multidimensional ordinary DE is just a collection or vector of functions depending on $t$, 
+tracing a unidimensional trajectory in a higher-dimensional space.
 
 ```math
 \begin{aligned}
@@ -88,7 +89,7 @@ In other words, the solution of a multidimensional ordinary DE is just a collect
 \end{aligned}
 ```
 
-Most numerical ODE solving software assumes as input in its interface a first-order ODE already reduced in this manner.
+Generalist numerical ODE solvers will almost always require as input a reduced system, as we will see later.
 
 #### Exact solution
 `TODO`
@@ -132,10 +133,12 @@ def derivative_field(t, y, k0):
                      -k0*y[0]])
 ```
 
-This is effectively a vector field defined on our bidimensional space[^4],
-which will be called the *state space* from now on (see the notebook for the plotting code).
+This is effectively a vector field defined over our bidimensional space[^4] $y = [x, v]$,
+which will be called the *state space* from now on (the code to make plots is omitted, see the notebook).
 
 ![ODE vector field](img/blog_h1_vecfield.svg)
+
+
 
 [^4]: Note that the absolute size of the arrows in the plot does not matter, just their relative size and direction: 
 fundamentally, this is due to the fact that the vectors do not belong in the state space itself, but are rather elements
@@ -157,10 +160,10 @@ The positional arguments are the most important thing to understand: we pass our
 `derivative_field` with signature `derivative_field(t, y, *args)`, which returns the 
 derivative at $t,y$. The solution is defined on the interval `t_span`, and the initial conditions
 are in `y0`. Additional parameters for `derivative_field` are passed in `args`, in our case the
-spring strength $k0$.
+spring strength $k_0$.
 
 
-If everything goes well, `sol` should print something like this:
+If everything goes well, `sol` should print something similar to this:
 ```
   message: The solver successfully reached the end of the integration interval.
   success: True
@@ -175,16 +178,19 @@ If everything goes well, `sol` should print something like this:
      njev: 0
       nlu: 0
 ```
-the field `sol.y` will contain our solution, a trajectory through the state space evaluated at each time `sol.t`.
+The field `sol.y` will contain our solution, a trajectory through the state space evaluated at each time `sol.t`.
 
-### Visualizing the solution
-We can plot our solution in various ways. First, lets look at the components separatedly: we can observe the 
+## Overview of numerical methods for ODEs
+`TODO`
+
+## Visualizing the solution
+Back to our harmonic oscillator: we can plot our solution to the equation in various ways. First, lets look at the components separatedly: we can observe the 
 so-called harmonic motion in action, oscillating around the equilibrium point at the origin $x=0$.
 
 ![Harmonic solution position and velocity](img/H1_pos_v.svg)
 
 Another possibility: we can ignore time and plot the solution $y=[x,v]$ directly on the state space. Here we can observe
-the trajectory (in blue) determined by the the initial condition (the red dot, plotted with its derivative vector).
+the trajectory (in blue) determined by the the initial condition (the red dot, plotted with its derivative vector, not to scale).
 
 ![Harmonic solution position and velocity](img/blog_h1_vecfield_sol.svg)
 
@@ -196,18 +202,18 @@ discuss the physical context.
 Now, let's have a look at one key ingredient of Polynomial Chaos: the polynomials themselves.
 
 ### Polynomials as vector spaces
-Vectors are often reduced to mere arrays of numbers, especially when working in numerical code.
-Sometimes, this equivalence becomes a bit too reductive. In this section, we will look at polynomials from the point of view of vector spaces,
-and it will be useful to consider the more abstract definition of the spaces.
+Vectors are often considered equivalent to mere arrays of numbers, especially when working in numerical code.
+Sometimes, this equivalence may become a bit too reductive. In this section, we will look at polynomials from the point of view of vector spaces.
+And then, the more theoretical definition of vector spaces will come in handy.
 
 #### Properties of vector spaces
-A vector space over a scalar field is a set of elements combined with a field of numbers, usually the real $\mathbb{R}$ or complex $\mathbb{C}$ numbers, with some binary operations between them satisfying "linearity" properties: 
-you can add elements and get another one, you can multiply ("scale") them by the field members, etc (see [wiki](https://en.wikipedia.org/wiki/Vector_space#Definition_and_basic_properties) for more information). 
-Sometimes you may have additional structure, such as [multilinear functionals](https://en.wikipedia.org/wiki/Linear_form) or [norms](https://en.wikipedia.org/wiki/Normed_vector_space).
+A vector space over a scalar field is a set of elements combined with a field of numbers, usually the real $\mathbb{R}$ or complex $\mathbb{C}$ numbers, with some binary operations between them satisfying 
+some "linearity" properties: you can add elements and get another one, you can multiply ("scale") them by the field members, etc (see [wiki](https://en.wikipedia.org/wiki/Vector_space#Definition_and_basic_properties) for more information). 
+Sometimes, you may have additional structure, such as [multilinear functionals](https://en.wikipedia.org/wiki/Linear_form) or [norms](https://en.wikipedia.org/wiki/Normed_vector_space).
 
 > [!TIP]
-> Elements of the set are sometimes marked differently from the elements of the field, to better distinguish vector variables from normal scalar numbers
-> Often the vectors are written in bold $\mathbf{z} = a\mathbf{u}+b\mathbf{v}$ or with an over arrow $\overrightarrow{v} = a\overrightarrow{u}+b\overrightarrow{v} $
+> Elements of the vector set often use a different typeface than the elements of the field, to better distinguish vector variables from scalar numbers.
+> Most commonly, the vectors are written in bold $\mathbf{z} = a\mathbf{u}+b\mathbf{v}$ or with an over arrow $\overrightarrow{v} = a\overrightarrow{u}+b\overrightarrow{v} $
 
 
 #### Concept of basis of a vector space
@@ -239,7 +245,7 @@ P(x,y) := p_0+p_1x+p_2y + \cdots+p_{nm} x^ny^m\ .
 ```
 
 #### Basis on the polynomial space
-By using the standard definitions of algebraic sum and multiplication by a constant, we define operations between polynomials. In fact,
+By using the standard definitions of sum and multiplication by a constant of symbolic expressions, we can define operations between polynomials. It is easy to
 these operations satisfy the requirements of a vector space.
 
 ```math
@@ -255,18 +261,18 @@ For example, in one variable $x$:
 \mathbf{e_0} = 1,\ \mathbf{e_1} = x,\ \mathbf{e_2} = x^2,\ \cdots \ \mathbf{e_n} = x^n   
 ```
 
-It is almost tautological to see how sum and multiplication by a constant can produce every polynomial of that degree.
+It is very easy to show that the operations of sum and multiplication by a constant applied to monomials can produce every polynomial up to the highest monomial degre.
 
 #### Ortogonal bases
 For the next step, we need to consider some additional structure on our vector space: an [inner product](https://en.wikipedia.org/wiki/Inner_product_space).
-The inner product $\langle u,v \rangle$ is an operation that takes in two vectors and produces a scalar, satisfying some properties of symmetry, linearity and positive-definiteness
-(see wiki for more info). Moreover, an inner product defines a norm operation (the notion of length of a vector):
+The inner product $\langle u,v \rangle$: `[Vec, Vec] -> Num` is an operation that takes in two vectors and produces a scalar, satisfying some properties of symmetry, linearity and positive-definiteness
+(see wiki for more info). Moreover, an inner product induces a norm operation `Vec -> Num` (the length of a vector) on the space:
 
 ```math
 || v ||^2 = \langle v, v \rangle \textrm{ or equivalently, } || v || = \sqrt{\langle v, v \rangle}
 ```
 
-For the purposes of Polynomial Chaos, the inner product $\langle P_i, P_j\rangle$ on the vector space of polynomials is defined as the definite integral 
+For the purposes of Polynomial Chaos theory, the inner product $\langle P_i, P_j\rangle$ on the vector space of polynomials is defined as the definite integral 
 of the product of the polynomials $P_i(x)P_j(x)$ over the domain 
 $D$ of the variables, where each value of $x$ is weighted by a specified *weight* or *density function* $w(x)$
 
@@ -274,8 +280,8 @@ $D$ of the variables, where each value of $x$ is weighted by a specified *weight
 \langle P_i, P_j\rangle _w\ := \int_D P_i(x)P_j(x)\,w(x)dx\ .
 ```
 
-The relevance of the density function will become clearer later once we approach the stochastic side of things, for now let's take this definition
-as axiomatic, and look into the notion of *orthogonality* and *orthonormality*.
+The relevance of the density function will become clearer later, once we approach the topic from the stochastic side. For now we will assume this definition
+as axiomatic, and look at how it relates to the important notions of *orthogonality* and *orthonormality*.
 
 An *orthogonal basis* is a basis where the inner product of two different basis vectors is zero. An *orthonormal basis*
 has the additional property that the norm $|| e_i ||$ of each basis vector, or equivalently $\langle e_i, e_i\rangle$, is equal to $1$.
@@ -299,7 +305,7 @@ w_u(x) \ := \Bigg\{ \begin{aligned}
 \end{aligned}
 ```
 
-we can already see that the inner product of the first two elements of the natural basis is not zero:
+we can easily compute the inner product of the first two elements $[e_0, e_1] = [1, x]$ of the natural basis, and is not zero:
 ```math
 \langle e_0, e_1 \rangle_{w_u} \ = \langle (1), (x) \rangle_{w_u} = \int_\mathbb{R} 1 \cdot x\,w_u(x)dx = \int_0^1 1 \cdot x \cdot 1 dx = \frac{1}{2} \neq 0
 ```
@@ -318,9 +324,9 @@ Central to this is the concept of [projection](https://en.wikipedia.org/wiki/Vec
 The projection of a vector $\mathbf{v}$ onto $\mathbf{u}$ is another vector[^5] with the same direction as $\mathbf{u}$, scaled by their inner product and normalized
 by the norm of $\mathbf{u}$.
 
-[^5]: So we could say that `Proj` has type `[Vector, Vector] -> Vector`, compared with the inner product which has type `[Vector, Vector] -> Real`.
+[^5]: We could say that `Proj` has type `[Vec, Vec] -> Vec`, compared with the inner product which has type `[Vector, Vector] -> Num`.
 
-The following pseudocode shows the GS process for polynomials (TODO expand a bit here).
+The following pseudocode shows the GS process for polynomials (TODO expand a bit here, make example).
 
 ```
 Input:
@@ -346,7 +352,10 @@ end for
 Output: (polynomials, snorms)
 ```
 
-and the following figure illustrates said process:
+The following figure illustrates the process. Roughly speaking, the algorithm
+removes the common component (the projection) from each pair of vectors and then normalizes them, 
+until they are all orthonormal to each other.
+
 ![GS orthonormalization explanation](img/ortho_poly_GS_white_fix.png)
 
 ## Introduction to `sympy`
