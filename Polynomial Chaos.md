@@ -1,8 +1,16 @@
 # Tutorial on Polynomial Chaos in Hamiltonian mechanics 
-# Part 1: Intoduction
+# Intoduction
 In this series of blog posts, I will give a rundown of my MSc thesis work on the tecnique known as *Polynomial chaos* (PC) or *Polynomial chaos expansion* (PCE),
 as applied to Hamiltonian Mechanics. We will explore its application to numerical solutions of stochastic differential equations with a focus on uncertainty qunatification in
-simulations of Hamiltonian systems. In this first part, we will go over a summary of the necessary background information.
+simulations of Hamiltonian systems.
+
+### Contents
+* Part 1: we will go over a quick summary of the necessary background knowledge, such as ODEs, polynomials as vector spaces, 
+`scipy` and `sympy`.
+* Part 2: definitions and concepts of Polynomial Chaos Expansion will be explored, such as intrusive vs surrogate model.
+* Part 3: we will look at the basic properties of Hamiltonian equations, and derive more advanced concepts like Hamiltonian maps.
+* Part 4: assembly everything together, creating a fully automated system to perform fast Uncertainty Quantification in the evolution of Hamiltonian systems using intrusive PCE, generating
+  symbolic expressions which are then compiled to numerical functions suited for traditional ODE solver software.
 
 > [!NOTE]
 > A fully rigorous approach to the topic requires advanced knowledge of math, physics and statistics.
@@ -12,7 +20,7 @@ simulations of Hamiltonian systems. In this first part, we will go over a summar
 > My goal is then to assume only basic knowledge of analysis and linear algebra and to try to provide the basic background facts.
 > I will use images and code to explain concepts and formulas, if possible.
 
-# Introductory examples and definitions
+# Part 1: Introductory examples and definitions
 In this section, we recall some basic facts of differential equations, vector spaces, 
 polynomials, and the like. Feel free to skip and consult as needed if you are already familiar with all of these terms.
 
