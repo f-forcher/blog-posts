@@ -16,7 +16,7 @@ simulations of Hamiltonian systems. In this first part, we will go over a summar
 In this section, we recall some basic facts of differential equations, vector spaces, 
 polynomials, and the like. Feel free to skip and consult as needed if you are already familiar with all of these terms.
 
-## The unidimensional harmonic oscillator
+## Ordinary Differential Equations: the unidimensional harmonic oscillator
 Let's have a look at the equation of motion of an unidimensional oscillator, a basic ordinary differential equation[^1] from physics:
 
 [^1]: Recall that a differential equation is similar to a standard equation, but while the solution of the latter is a 
@@ -83,7 +83,7 @@ In other words, the solution of a multidimensional ordinary DE is just a collect
 Most numerical ODE solving software assumes as input in its interface a first-order ODE already reduced in this manner.
 
 #### Exact solution
-`(TODO, not important for article)`
+`TODO`
 
 ### Numerical solution
 We will now show how to use Python and its associated numerical libraries to get an approximate solution for this ODE.
@@ -202,7 +202,7 @@ Sometimes you may have additional structure, such as [multilinear functionals](h
 > Often the vectors are written in bold $\mathbf{z} = a\mathbf{u}+b\mathbf{v}$ or with an over arrow $\overrightarrow{v} = a\overrightarrow{u}+b\overrightarrow{v} $
 
 
-#### Basis of the space
+#### Concept of basis of a vector space
 A subset $\mathbf{e_i} = [\mathbf{e_0}, \mathbf{e_1}, \cdots]$ of the vector space is called a [basis](https://en.wikipedia.org/wiki/Basis_(linear_algebra)) of the space if, 
 by summing and scaling its elements, we can generate every other vector in the space (and the element themselves are independent of each other).
 
@@ -280,5 +280,114 @@ In other words,
 \end{aligned}
 ```
 
+#### The Gram–Schmidt algorithm
+It is easy to see that for most weights $w(x)$, the natural basis of monomials $e_i = x^i$ is not orthogonal in the space of polynomials.
+For example, definining $w(x)$ as uniform between $0$ and $1$ : 
 
+```math
+w_u(x) \ := \Bigg\{ \begin{aligned}
+  1\ &|\ 0 < x < 1 \\
+  0\ &|\ \mathrm{otherwise}
+\end{aligned}
+```
+
+we can already see that the inner product of the first two elements of the natural basis is not zero:
+```math
+\langle e_0, e_1 \rangle_{w_u} \ = \langle (1), (x) \rangle_{w_u} = \int_\mathbb{R} 1 \cdot x\,w_u(x)dx = \int_0^1 1 \cdot x \cdot 1 dx = \frac{1}{2} \neq 0
+```
+
+How can we go from a non-orthonormal basis to an orthonormal one? There is an algorithm for that, 
+the [Gram–Schmidt process](https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process).
+
+In plain words, the core idea of the algorithm is to iterate over the non-ortogonal basis vectors 
+and subtract from them their *projection* on all the previously processed basis vectors.
+Central to this is the concept of [projection](https://en.wikipedia.org/wiki/Vector_projection) of a vector $\mathbf{v}$ onto another $\mathbf{u}$:
+
+```math
+\mathrm{Proj}_{\mathbf u} (\mathbf{v}) = \frac{\langle \mathbf{v}, \mathbf{u}\rangle}{\langle \mathbf{u}, \mathbf{u}\rangle} \,\mathbf{u}
+```
+
+The projection of a vector $\mathbf{v}$ onto $\mathbf{u}$ is another vector[^5] with the same direction as $\mathbf{u}$, scaled by their inner product and normalized
+by the norm of $\mathbf{u}$.
+
+[^5]: So we could say that `Proj` has type `[Vector, Vector] -> Vector`, compared with the inner product which has type `[Vector, Vector] -> Real`.
+
+The following pseudocode shows the GS process for polynomials (TODO expand a bit here).
+
+```
+Input:
+ M: Max degree;
+ N : number of variables;
+ inner product definition: domain D and density w
+
+basis ← Monomial, non-orthogonal, basis, ex: [1, x, y, x2, xy, y2 , . . . , ]
+polynomials ← Orthogonalized basis: [ basis[0] ]
+snorms ← squared norms: [1, 1, . . .]
+inner(v , u ; w) ← Inner product formula
+for i ← 1 to length(basis) do    # For each monomial...
+    for j ← 0 to i do
+        projcoeff ← inner(basis[i], polynomial[j])      # Project on previous elements
+        basis[i] ← basis[i] − projcoeff ∗ polynomial[j] # Subtract parallel parts
+        snorms[j]
+    end for
+    snorms[i+1] ← inner(basis[i], basis[i]) 
+    basis[i] ← basis[i] / sqrt(snorms[i+1])# Renormalize
+    polynomial[i+1] ← basis[i]
+end for
+
+Output: (polynomials, snorms)
+```
+
+and the following figure illustrates said process:
 ![GS orthonormalization explanation](img/ortho_poly_GS_white_fix.png)
+
+## Introduction to `sympy`
+`TODO`
+
+### Polynomials in `sympy`
+`TODO`
+
+### The Gram–Schmidt algorithm in `sympy`
+`TODO`
+
+# Polynomial Chaos
+`TODO`
+
+## Definition of PCE, advantages
+`TODO`
+
+## Intrusive PCE
+`TODO`
+
+## Examples in `sympy`
+`TODO`
+
+# Fundamentals of Hamiltonian Mechanics
+`TODO`
+
+## Hamiltonian equations
+`TODO`
+
+### The harmonic oscillator, revisited
+`TODO`
+
+## Hamiltonian maps
+`TODO`
+
+## Stochastic hamiltonians, Monte Carlo approach
+`TODO`
+
+# Putting it all together:
+`TODO`
+
+## Stochastic Hamiltonian maps
+`TODO`
+
+## Automatic derivation of Hamilton equations in `sympy`
+`TODO`
+
+### Duffing hamiltonian example
+`TODO`
+
+## Uncertainty quantification in Hamiltonian systems
+`TODO`
